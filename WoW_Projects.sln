@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordToExcel_RaidHelper", "DiscordToExcel_RaidHelper\DiscordToExcel_RaidHelper.csproj", "{4E7267F5-20CD-4365-BC34-9EB5F11BC2AF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E7267F5-20CD-4365-BC34-9EB5F11BC2AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E7267F5-20CD-4365-BC34-9EB5F11BC2AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E7267F5-20CD-4365-BC34-9EB5F11BC2AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E7267F5-20CD-4365-BC34-9EB5F11BC2AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
