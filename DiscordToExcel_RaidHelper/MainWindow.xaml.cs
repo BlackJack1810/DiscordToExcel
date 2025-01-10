@@ -1,4 +1,7 @@
 ﻿// MainWindow.xaml.cs
+using DiscordToExcel_RaidHelper.API;
+using DiscordToExcel_RaidHelper.Datamodel;
+using DiscordToExcel_RaidHelper.Excel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -13,17 +16,25 @@ namespace DiscordToExcel_RaidHelper
         private ExcelHelper excelHelper;
 
         // ObservableCollection to bind raid events to the UI
-        public ObservableCollection<RaidEvent> RaidEvents { get; set; } = new ObservableCollection<RaidEvent>();
+        public ObservableCollection<AllCurrentRaids> Raids { get; set; } = new ObservableCollection<AllCurrentRaids>();
         // The currently selected raid event
-        public RaidEvent SelectedRaidEvent { get; set; }
+        public AllCurrentRaids SelectedRaidEvent { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = this;
+
             // Initialize helper classes with the API token
-            raidHelperApi = new RaidHelperApi("<your-api-token>");
+            raidHelperApi = new RaidHelperApi("v7ydHm1q2ZKzthA5svdhPCv5e2s6HUo5Zlpcj8LL");
             excelHelper = new ExcelHelper();
             // Load raid events on application start
+            LoadRaidEvents();
+        }
+
+        // Load Events on button click
+        private void LoadEvents_Click(object sender, RoutedEventArgs e)
+        {
             LoadRaidEvents();
         }
 
@@ -32,14 +43,16 @@ namespace DiscordToExcel_RaidHelper
         {
             try
             {
-                // Retrieve raid events from the API
+                // Retrieve raid events from the API and include participants
                 var events = await raidHelperApi.GetRaidEventsAsync();
+                events = await raidHelperApi.GetRaidParticipantsAsync(events);
+
                 // Clear the current events in the ObservableCollection
-                RaidEvents.Clear();
+                Raids.Clear();
                 // Add the retrieved events to the ObservableCollection
                 foreach (var raidEvent in events)
                 {
-                    RaidEvents.Add(raidEvent);
+                    Raids.Add(raidEvent);
                 }
             }
             catch (Exception ex)
@@ -72,6 +85,11 @@ namespace DiscordToExcel_RaidHelper
                 // Display a warning if no raid event is selected
                 MessageBox.Show("Please select a raid event first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
