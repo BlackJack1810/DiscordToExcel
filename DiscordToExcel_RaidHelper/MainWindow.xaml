@@ -5,12 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DiscordToExcel_RaidHelper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Discord to Excel" Height="450" Width="800">
     <!---'Grid' ist ein Layout-Panel, das andere Steuerelemente enthält. Es gibt verschiedene Arten von Layout-Panels, die in WPF verwendet werden können.-->
     <Grid>
-        <Button Click="Button_Click" HorizontalAlignment="left" Margin="30,30,0,0" Height="60" Width="170" VerticalAlignment="Top">Load current Raids</Button>
-        <TextBlock x:Name="Raids" HorizontalAlignment="Right" Margin="0,30,15,0" Width="400" VerticalAlignment="Top">
-            TEST
-        </TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" x:Name="Logo" Source="Image/NewHopeLogo.png" Width="100" Height="auto"/>
+        <Button Grid.Row="1" Grid.Column="0" Click="LoadEvents_Click" HorizontalAlignment="center" Margin="30,30,0,0" Height="60" Width="170" VerticalAlignment="Top">Load current Raids</Button>
+        <ListView Grid.Row="2" Grid.Column="0" x:Name="Raidlist" Margin="30,30,30,30" ItemsSource="{Binding Raids}" SelectedItem="{Binding SelectedRaidEvent, Mode=TwoWay}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Event" Width="150" DisplayMemberBinding="{Binding Title}"/>
+                    <GridViewColumn Header="Date" Width="100" DisplayMemberBinding="{Binding StartTime, StringFormat={}{0:dd.MM.yyyy}}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </Window>

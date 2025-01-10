@@ -19,3 +19,17 @@ C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\De
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\DiscordToExcel_RaidHelper.genruntimeconfig.cache
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\ref\DiscordToExcel_RaidHelper.dll
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\DiscordToExcel_RaidHelper.csproj.AssemblyReference.cache
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\EPPlus.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\EPPlus.Interfaces.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\EPPlus.System.Drawing.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.Configuration.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.Extensions.Primitives.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\DiscordToExcel_RaidHelper.sourcelink.json
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\DiscordT.ACEFB517.Up2Date

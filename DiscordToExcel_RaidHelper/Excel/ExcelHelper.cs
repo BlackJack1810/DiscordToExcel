@@ -1,12 +1,12 @@
-﻿
+﻿using DiscordToExcel_RaidHelper.Datamodel;
 using OfficeOpenXml;
 
-namespace DiscordToExcel_RaidHelper
+namespace DiscordToExcel_RaidHelper.Excel
 {
     // Class to handle exporting raid participants to Excel
     public class ExcelHelper
     {
-        public void ExportRaidParticipantsToExcel(RaidEvent raidEvent)
+        public void ExportRaidParticipantsToExcel(AllCurrentRaids raids)
         {
             // Loading the ExcelPackage and set the Workbook and Worksheet
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Set licence context 
@@ -18,10 +18,10 @@ namespace DiscordToExcel_RaidHelper
 
             // Write participant data to Excel
             int row = 2;
-            foreach (var participant in raidEvent.Participants)
+            foreach (var participant in raids.SignUps)
             {
-                worksheet.Cells[row, 1].Value = participant.Name;
-                worksheet.Cells[row, 2].Value = participant.Role;
+                worksheet.Cells[row, 1].Value = participant.NameDiscord;
+                worksheet.Cells[row, 2].Value = participant.NameMain;
                 row++;
             }
 
