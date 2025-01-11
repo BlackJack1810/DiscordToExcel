@@ -6,7 +6,6 @@
         xmlns:local="clr-namespace:DiscordToExcel_RaidHelper"
         mc:Ignorable="d"
         Title="Discord to Excel" Height="450" Width="800">
-    <!---'Grid' ist ein Layout-Panel, das andere Steuerelemente enthält. Es gibt verschiedene Arten von Layout-Panels, die in WPF verwendet werden können.-->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -27,5 +26,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" x:Name="RaidMembers" Margin="30,30,30,30" AutoGenerateColumns="False" ItemsSource="{Binding RaidMembers}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name in Discord" Binding="{Binding NameDiscord}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Name of Main" Binding="{Binding NameMain}"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>

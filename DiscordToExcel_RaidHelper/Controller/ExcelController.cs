@@ -1,10 +1,10 @@
 ﻿using DiscordToExcel_RaidHelper.Datamodel;
 using OfficeOpenXml;
+using System;
 
-namespace DiscordToExcel_RaidHelper.Excel
+namespace DiscordToExcel_RaidHelper.Controller
 {
-    // Class to handle exporting raid participants to Excel
-    public class ExcelHelper
+    public class ExcelController
     {
         public void ExportRaidParticipantsToExcel(AllCurrentRaids raids)
         {
