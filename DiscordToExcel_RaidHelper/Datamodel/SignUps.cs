@@ -7,5 +7,8 @@
         [System.Text.Json.Serialization.JsonPropertyName("name")]
         public required string NameDiscord { get; set; }
         public string? NameMain { get; set; }
+        
+        // set true for empty line in the RaidMembers list
+        public bool IsGroupHeader { get; set; }
     }
 }
