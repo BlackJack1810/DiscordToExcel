@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DiscordToExcel_RaidHelper"
+        xmlns:local="clr-namespace:DiscordToExcel_RaidHelper" xmlns:view="clr-namespace:DiscordToExcel_RaidHelper.View" d:DataContext="{d:DesignInstance Type=view:MainView}"
         mc:Ignorable="d"
-        Title="Discord to Excel" Height="450" Width="800">
-    <Grid>
+        Title="Discord to Excel" Height="800" Width="800">
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -26,7 +26,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" x:Name="RaidMembers" Margin="30,30,30,30" AutoGenerateColumns="False" ItemsSource="{Binding RaidMembers}">
+        <DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" x:Name="raidMemberList" Margin="30,30,30,30" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding SignUpsStructure}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name in Discord" Binding="{Binding NameDiscord}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Name of Main" Binding="{Binding NameMain}"/>

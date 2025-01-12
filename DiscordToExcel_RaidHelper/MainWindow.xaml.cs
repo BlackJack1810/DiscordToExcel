@@ -8,17 +8,17 @@ namespace DiscordToExcel_RaidHelper
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            DataContext = new MainView();
         }
 
         private void LoadEvents_Click(object sender, RoutedEventArgs e)
         {
-            ((MainViewModel)DataContext).LoadRaidEvents();
+            ((MainView)DataContext).LoadRaidEvents();
         }
 
         private void ExportToExcel_Click(object sender, RoutedEventArgs e)
         {
-            ((MainViewModel)DataContext).ExportToExcel();
+            ((MainView)DataContext).ExportToExcel();
         }
     }
 }
