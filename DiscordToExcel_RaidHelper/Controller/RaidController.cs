@@ -9,16 +9,32 @@ namespace DiscordToExcel_RaidHelper.Controller
     public class RaidController
     {
         private RaidHelperApi raidHelperApi;
+        private string ServerID;
+        private string APIKey;
+        private AppSettings _appSettings;
 
-        public RaidController()
+        public RaidController(String APIKey, String ServerID)
         {
-            raidHelperApi = new RaidHelperApi("v7ydHm1q2ZKzthA5svdhPCv5e2s6HUo5Zlpcj8LL");
+            this.ServerID = ServerID;
+            this.APIKey = APIKey;
         }
         //Load all raid events and participants
         public async Task<List<AllCurrentRaids>> LoadRaidEventsAsync()
         {
-            var events = await raidHelperApi.GetRaidEventsAsync();
-            return await raidHelperApi.GetRaidParticipantsAsync(events);
+            // check for ServerID and APIKey
+            _appSettings = SettingsManager.LoadSettings();
+            ServerID = _appSettings.ServerId;
+            APIKey = _appSettings.RaidHelperApi;
+            if (!string.IsNullOrEmpty(ServerID) && !string.IsNullOrEmpty(APIKey))
+            {                               
+                raidHelperApi = new RaidHelperApi(APIKey);
+                var events = await raidHelperApi.GetRaidEventsAsync(ServerID);
+                return await raidHelperApi.GetRaidParticipantsAsync(events);
+            } else
+            {
+                return new List<AllCurrentRaids>();
+            }
+
         }
 
 

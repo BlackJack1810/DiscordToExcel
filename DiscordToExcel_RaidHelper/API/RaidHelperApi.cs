@@ -12,29 +12,26 @@ namespace DiscordToExcel_RaidHelper.API
 {
     public class RaidHelperApi
     {
-        // API token for authentication
-        private readonly string apiToken;
         // HttpClient for communicating with the API
         private readonly HttpClient httpClient;
 
         public RaidHelperApi(string token)
         {
-            apiToken = token;
             // Initialize HttpClient with the base address of the API
             httpClient = new HttpClient
             {
                 BaseAddress = new Uri("https://raid-helper.dev")
             };
             // Add the Authorization header with the API token
-            httpClient.DefaultRequestHeaders.Add("Authorization", apiToken);
+            httpClient.DefaultRequestHeaders.Add("Authorization", token);
         }
 
         // Asynchronous method to retrieve raid events from the API
-        public async Task<List<AllCurrentRaids>> GetRaidEventsAsync()
+        public async Task<List<AllCurrentRaids>> GetRaidEventsAsync(String ID)
         {
             // Send a GET request to the "events" endpoint. The number after "servers/" is the server ID.
-            var response = await httpClient.GetAsync("/api/v3/servers/1327199881877520404/events");
-            
+            var response = await httpClient.GetAsync("/api/v3/servers/" + ID + "/events");
+
             // Ensure the request was successful
             response.EnsureSuccessStatusCode();
             
