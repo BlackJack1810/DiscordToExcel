@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DiscordToExcel_RaidHelper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3873a18871b6cb947d01eec05bbc7c3a7f0733ec")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4166965f14f26547d6d2f170bf1276df97764dcc")]
 [assembly: System.Reflection.AssemblyProductAttribute("DiscordToExcel_RaidHelper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DiscordToExcel_RaidHelper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

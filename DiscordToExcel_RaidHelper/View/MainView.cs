@@ -4,6 +4,7 @@ using DiscordToExcel_RaidHelper.Datamodel;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,8 @@ namespace DiscordToExcel_RaidHelper.View
         private ExcelController excelController;
         private AllCurrentRaids selectedRaidEvent;
         private RaidMemberListModel raidMemberListModel;
+        private AppSettings _appSettings;
+        private DataGridRow draggedRow;
 
         public ObservableCollection<AllCurrentRaids> Raids { get; set; } = new ObservableCollection<AllCurrentRaids>();
 
@@ -61,7 +64,9 @@ namespace DiscordToExcel_RaidHelper.View
 
         public MainView()
         {
-            raidController = new RaidController();
+            // Load Settings
+            _appSettings = SettingsManager.LoadSettings();
+            raidController = new RaidController(_appSettings.RaidHelperApi, _appSettings.ServerId);
             excelController = new ExcelController();
             raidMemberListModel = new RaidMemberListModel();
             SignUpsStructure = raidMemberListModel.CreateRaidMemberList();
@@ -96,7 +101,10 @@ namespace DiscordToExcel_RaidHelper.View
                 Raids.Clear();
                 foreach (var raidEvent in events)
                 {
-                    Raids.Add(raidEvent);
+                    if (raidEvent.StartTime > DateTime.Now)
+                    {
+                        Raids.Add(raidEvent);
+                    }
                 }
             }
             catch (Exception ex)
@@ -105,7 +113,7 @@ namespace DiscordToExcel_RaidHelper.View
             }
         }
 
-        public void ExportToExcel()
+        public void SaveToExcel_Click()
         {
             if (SelectedRaidEvent != null)
             {
@@ -125,6 +133,18 @@ namespace DiscordToExcel_RaidHelper.View
             }
         }
 
+        public void Settings_Click()
+        {
+            var settingsWindow = new SettingsWindow(_appSettings);
+
+            // show modal dialog
+            if (settingsWindow.ShowDialog() == true)
+            {
+                // Save after closing the window
+                SettingsManager.SaveSettings(_appSettings);
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -132,55 +152,126 @@ namespace DiscordToExcel_RaidHelper.View
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void RaidMemberList_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        // Saving the Change of Main Names
+        public void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            if (sender is DataGrid dataGrid)
+            // Hole die bearbeitete Zeile und die betroffene Zelle
+            var editedRow = e.Row.Item;
+            var column = e.Column.Header.ToString();
+
+            if (column == "Name of Main")
             {
-                var row = FindVisualParent<DataGridRow>(e.OriginalSource as DependencyObject);
-                if (row != null && row.IsSelected)
+                var textBox = e.EditingElement as TextBox;
+                if (textBox != null)
                 {
-                    DragDrop.DoDragDrop(dataGrid, row.Item, DragDropEffects.Move);
+                    var newValue = textBox.Text;
+                    var discordName = (editedRow as SignUps).NameDiscord; // Ändere `YourModelClass` auf deinen tatsächlichen Modelltyp
+                    var mainName = newValue;
+
+                    // Rufe die AddNameMapping-Methode auf
+                    AddNameMapping(discordName, mainName);
                 }
             }
         }
 
-        public void RaidMemberList_Drop(object sender, DragEventArgs e)
+        public void AddNameMapping(string discordName, string mainName)
         {
-            if (sender is DataGrid dataGrid && e.Data.GetDataPresent(typeof(SignUps)))
+            // Überprüfen, ob der Name in einer der ausgenommenen Gruppen ist
+            var excludedGroups = new[] { "Group 1", "Group 2", "Group 3", "Group 4", "Group 5" };
+            if (excludedGroups.Contains(discordName) || excludedGroups.Contains(mainName))
             {
-                var droppedData = e.Data.GetData(typeof(SignUps)) as SignUps;
-                var target = ((FrameworkElement)e.OriginalSource).DataContext as SignUps;
+                return; // Keine Zuordnung hinzufügen, wenn der Name in einer dieser Gruppen ist
+            }
 
-                if (droppedData != null && target != null && droppedData != target)
+            // Überprüfen, ob diese Kombination bereits in den AppSettings vorhanden ist
+            bool exists = _appSettings.NameMappings.Any(mapping =>
+                mapping.NameInDiscord == discordName && mapping.NameOfMain == mainName);
+
+            if (!exists)
+            {
+                // Wenn die Kombination noch nicht existiert, füge sie hinzu
+                _appSettings.NameMappings.Add(new NameMapping
                 {
-                    var members = SignUpsStructure;
-                    int removedIdx = members.IndexOf(droppedData);
-                    int targetIdx = members.IndexOf(target);
+                    NameInDiscord = discordName,
+                    NameOfMain = mainName
+                });
 
-                    if (removedIdx < targetIdx)
-                    {
-                        members.Insert(targetIdx + 1, droppedData);
-                        members.RemoveAt(removedIdx);
-                    }
-                    else
-                    {
-                        int remIdx = removedIdx + 1;
-                        if (members.Count + 1 > remIdx)
-                        {
-                            members.Insert(targetIdx, droppedData);
-                            members.RemoveAt(remIdx);
-                        }
-                    }
-                }
+                // Speichere die AppSettings nach der Änderung
+                SettingsManager.SaveSettings(_appSettings);
             }
         }
 
-        private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+        // Drag & Drop für DataGrid
+        public void DataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var parentObject = VisualTreeHelper.GetParent(child);
-            if (parentObject == null) return null;
-            if (parentObject is T parent) return parent;
-            return FindVisualParent<T>(parentObject);
+            Debug.WriteLine("PreviewMouseLeftButtonDown");
+            // look for clicked row
+            var dataGrid = sender as DataGrid;
+            var hit = VisualTreeHelper.HitTest(dataGrid, e.GetPosition(dataGrid));
+            var row = FindVisualParent<DataGridRow>(hit.VisualHit);
+
+            if (row != null && !((SignUps)row.Item).IsGroupHeader)
+            {
+                draggedRow = row;
+                Debug.WriteLine("Jetzt sollte sich die Zeile bewegen" + draggedRow);
+                DragDrop.DoDragDrop(dataGrid, row, DragDropEffects.Move);
+            }
+        }
+
+        public void DataGrid_DragEnter(object sender, DragEventArgs e)
+        {
+            Debug.WriteLine("DragEnter");
+            Debug.WriteLine(e.Source);
+            Debug.WriteLine(sender);
+            // Check if the data being dragged is of type DataGridRow
+            if (!e.Data.GetDataPresent(typeof(DataGridRow)) || sender == e.Source)
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.Move;
+            }
+        }
+
+        public void DataGrid_Drop(object sender, DragEventArgs e)
+        {
+            if (draggedRow == null)
+                return;
+
+            var dataGrid = sender as DataGrid;
+            var dropPosition = e.GetPosition(dataGrid);
+
+            var hit = VisualTreeHelper.HitTest(dataGrid, dropPosition);
+            var targetRow = FindVisualParent<DataGridRow>(hit.VisualHit);
+
+            if (targetRow != null && !((SignUps)targetRow.Item).IsGroupHeader)
+            {
+                // swap items
+                var draggedItem = draggedRow.Item as SignUps;
+                var targetItem = targetRow.Item as SignUps;
+
+                if (draggedItem != null && targetItem != null)
+                {
+                    var list = (ObservableCollection<SignUps>)dataGrid.ItemsSource;
+                    int draggedIndex = list.IndexOf(draggedItem);
+                    int targetIndex = list.IndexOf(targetItem);
+
+                    list[draggedIndex] = targetItem;
+                    list[targetIndex] = draggedItem;
+                }
+            }
+
+            draggedRow = null;
+        }
+
+        // helper method to find parent of specific type
+        private static T FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            var parent = VisualTreeHelper.GetParent(child);
+            if (parent == null) return null;
+
+            return parent as T ?? FindVisualParent<T>(parent);
         }
     }
 }

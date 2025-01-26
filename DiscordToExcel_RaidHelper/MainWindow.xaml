@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DiscordToExcel_RaidHelper" xmlns:view="clr-namespace:DiscordToExcel_RaidHelper.View" d:DataContext="{d:DesignInstance Type=view:MainView}"
+        xmlns:local="clr-namespace:DiscordToExcel_RaidHelper" 
+        xmlns:view="clr-namespace:DiscordToExcel_RaidHelper.View" 
+        d:DataContext="{d:DesignInstance Type=view:MainView}"
         mc:Ignorable="d"
         Title="Discord to Excel" Height="800" Width="800">
-        <Grid>
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -17,8 +19,10 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Image Grid.Row="0" Grid.Column="0" x:Name="Logo" Source="Image/NewHopeLogo.png" Width="100" Height="auto"/>
-        <Button Grid.Row="1" Grid.Column="0" Click="LoadEvents_Click" HorizontalAlignment="center" Margin="30,30,0,0" Height="60" Width="170" VerticalAlignment="Top">Load current Raids</Button>
-        <ListView Grid.Row="2" Grid.Column="0" x:Name="Raidlist" Margin="30,30,30,30" ItemsSource="{Binding Raids}" SelectedItem="{Binding SelectedRaidEvent, Mode=TwoWay}">
+        <Button Grid.Row="2" Grid.Column="0" Click="LoadEvents_Click" HorizontalAlignment="center" Margin="0,15,0,0" Height="60" Width="170" VerticalAlignment="Top">Reload current raids</Button>
+        <Button Grid.Row="2" Grid.Column="0" Click="Settings_Click" HorizontalAlignment="center" Margin="0,0,0,0" Height="60" Width="170" VerticalAlignment="Center">Settings</Button>
+        <Button Grid.Row="2" Grid.Column="0" Click="SaveToExcel_Click" HorizontalAlignment="center" Margin="0,0,0,15" Height="60" Width="170" VerticalAlignment="Bottom">Save to Excel</Button>
+        <ListView Grid.Row="1" Grid.Column="0" x:Name="Raidlist" Margin="30,30,30,30" ItemsSource="{Binding Raids}" SelectedItem="{Binding SelectedRaidEvent, Mode=TwoWay}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Event" Width="150" DisplayMemberBinding="{Binding Title}"/>
@@ -26,7 +30,22 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <DataGrid Grid.Row="0" Grid.Column="1" Grid.RowSpan="3" x:Name="raidMemberList" Margin="30,30,30,30" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding SignUpsStructure}">
+        <DataGrid 
+            Grid.Row="0" 
+            Grid.Column="1" 
+            Grid.RowSpan="3" 
+            x:Name="raidMemberList" 
+            Margin="30,30,30,30" 
+            AutoGenerateColumns="False" 
+            CanUserAddRows="False" 
+            CanUserDeleteRows="False"
+            CanUserSortColumns="False" 
+            AllowDrop="True"
+            DragEnter="DataGrid_DragEnter"
+            PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown"
+            Drop="DataGrid_Drop"
+            CellEditEnding="DataGrid_CellEditEnding"
+            ItemsSource="{Binding SignUpsStructure}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name in Discord" Binding="{Binding NameDiscord}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Name of Main" Binding="{Binding NameMain}"/>

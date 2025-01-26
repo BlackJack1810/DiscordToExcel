@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordToExcel_RaidHelper.Datamodel
 {
-    // Model Class to create the SignUps_Structure structure
+    // Model Class to create the SignUps structure
     internal class RaidMemberListModel
     {
         public ObservableCollection<SignUps> CreateRaidMemberList()
