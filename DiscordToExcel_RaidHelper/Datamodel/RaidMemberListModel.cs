@@ -26,8 +26,8 @@ namespace DiscordToExcel_RaidHelper.Datamodel
                 {
                     raidMembers.Add(new SignUps
                     {
-                        NameDiscord = "Platzhalter für \"NameDiscord\"",
-                        NameMain = "Platzhalter für \"NameMain\"",
+                        NameDiscord = "Placeholder",
+                        NameMain = "Placeholder",
                         IsGroupHeader = false
                     });
                 }

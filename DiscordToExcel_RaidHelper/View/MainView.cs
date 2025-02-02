@@ -86,6 +86,13 @@ namespace DiscordToExcel_RaidHelper.View
                     {
                         groupIndex++;
                     }
+                    // check for name mapping
+                    var mapping = _appSettings.NameMappings.FirstOrDefault(m => m.NameInDiscord == member.NameDiscord);
+                    if (mapping != null)
+                    {
+                        // if a mapping exists, use the main name
+                        member.NameMain = mapping.NameOfMain;
+                    }
                     updatedList[groupIndex] = member;
                     groupIndex++;
                 }
@@ -155,7 +162,7 @@ namespace DiscordToExcel_RaidHelper.View
         // Saving the Change of Main Names
         public void DataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            // Hole die bearbeitete Zeile und die betroffene Zelle
+            // get the edited row and column
             var editedRow = e.Row.Item;
             var column = e.Column.Header.ToString();
 
@@ -164,11 +171,9 @@ namespace DiscordToExcel_RaidHelper.View
                 var textBox = e.EditingElement as TextBox;
                 if (textBox != null)
                 {
-                    var newValue = textBox.Text;
-                    var discordName = (editedRow as SignUps).NameDiscord; // Ändere `YourModelClass` auf deinen tatsächlichen Modelltyp
-                    var mainName = newValue;
-
-                    // Rufe die AddNameMapping-Methode auf
+                    var mainName = textBox.Text;
+                    var discordName = (editedRow as SignUps).NameDiscord; // change `YourModelClass` to the name of the class that represents a row in the DataGrid
+                                        
                     AddNameMapping(discordName, mainName);
                 }
             }
@@ -176,28 +181,31 @@ namespace DiscordToExcel_RaidHelper.View
 
         public void AddNameMapping(string discordName, string mainName)
         {
-            // Überprüfen, ob der Name in einer der ausgenommenen Gruppen ist
+            // exclude group headers
             var excludedGroups = new[] { "Group 1", "Group 2", "Group 3", "Group 4", "Group 5" };
             if (excludedGroups.Contains(discordName) || excludedGroups.Contains(mainName))
             {
-                return; // Keine Zuordnung hinzufügen, wenn der Name in einer dieser Gruppen ist
+                return; 
             }
 
-            // Überprüfen, ob diese Kombination bereits in den AppSettings vorhanden ist
+            // check for unique main name
             bool exists = _appSettings.NameMappings.Any(mapping =>
-                mapping.NameInDiscord == discordName && mapping.NameOfMain == mainName);
+                mapping.NameOfMain == mainName);
 
-            if (!exists)
+            if (!exists && mainName != null)
             {
-                // Wenn die Kombination noch nicht existiert, füge sie hinzu
+                // if no member with the same main name exists, add the mapping
                 _appSettings.NameMappings.Add(new NameMapping
                 {
                     NameInDiscord = discordName,
                     NameOfMain = mainName
                 });
-
-                // Speichere die AppSettings nach der Änderung
+                                
                 SettingsManager.SaveSettings(_appSettings);
+            }
+            else
+            {
+                MessageBox.Show("No Main was entered or this main name is already in use. Please choose another one or check for double registrations", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -213,16 +221,12 @@ namespace DiscordToExcel_RaidHelper.View
             if (row != null && !((SignUps)row.Item).IsGroupHeader)
             {
                 draggedRow = row;
-                Debug.WriteLine("Jetzt sollte sich die Zeile bewegen" + draggedRow);
                 DragDrop.DoDragDrop(dataGrid, row, DragDropEffects.Move);
             }
         }
 
         public void DataGrid_DragEnter(object sender, DragEventArgs e)
         {
-            Debug.WriteLine("DragEnter");
-            Debug.WriteLine(e.Source);
-            Debug.WriteLine(sender);
             // Check if the data being dragged is of type DataGridRow
             if (!e.Data.GetDataPresent(typeof(DataGridRow)) || sender == e.Source)
             {
