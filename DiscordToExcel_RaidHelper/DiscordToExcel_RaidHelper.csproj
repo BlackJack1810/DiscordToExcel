@@ -9,11 +9,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EPPlus" Version="7.5.2" />
+    <None Remove="Image\NewHopeLogo.png" />
+    <None Remove="prime-depot-450413-q9-b8d94937cf22.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Image\" />
+    <EmbeddedResource Include="Key\prime-depot-450413-q9-b8d94937cf22.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EPPlus" Version="7.5.2" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="Google.Apis.Sheets.v4" Version="1.68.0.3658" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Image\NewHopeLogo.png" />
   </ItemGroup>
 
 </Project>

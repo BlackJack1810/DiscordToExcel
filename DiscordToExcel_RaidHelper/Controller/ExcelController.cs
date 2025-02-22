@@ -1,41 +1,64 @@
-﻿using DiscordToExcel_RaidHelper.Datamodel;
-using OfficeOpenXml;
-using System;
+﻿using DiscordToExcel_RaidHelper.API;
+using DiscordToExcel_RaidHelper.Datamodel;
+using Google.Apis.Sheets.v4.Data;
+using Google.Apis.Sheets.v4;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
 
-namespace DiscordToExcel_RaidHelper.Controller
+public class ExcelController
 {
-    public class ExcelController
+    private readonly GoogleSheetsService _googleSheetsService;
+
+    public ExcelController(string credentials, string spreadsheetId)
     {
-        public void ExportRaidParticipantsToExcel(AllCurrentRaids raids)
+        _googleSheetsService = new GoogleSheetsService(credentials, spreadsheetId);
+    }
+
+    public async Task WriteRaidmemberToExcel(IEnumerable<SignUps> selectedRaidEvent)
+    {
+        if (selectedRaidEvent == null)
         {
-            // Loading the ExcelPackage and set the Workbook and Worksheet
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // Set licence context 
-            using var package = new ExcelPackage();
-            var worksheet = package.Workbook.Worksheets.Add("Raid Participants");
+            throw new System.Exception("no raiddata to export.");
+        }
 
-            worksheet.Cells[1, 1].Value = "Participant Name";
-            worksheet.Cells[1, 2].Value = "Role";
+        var values = new List<IList<object>>();
 
-            // Write participant data to Excel
-            int row = 2;
-            foreach (var participant in raids.SignUps)
+        // Copy the names of the participants to Excel
+        foreach (var member in selectedRaidEvent)
+        {
+          
             {
-                worksheet.Cells[row, 1].Value = participant.NameDiscord;
-                worksheet.Cells[row, 2].Value = participant.NameMain;
-                row++;
-            }
-
-            // Save the Excel file
-            var saveDialog = new Microsoft.Win32.SaveFileDialog
-            {
-                Filter = "Excel Files|*.xlsx",
-                Title = "Save Raid Participants"
-            };
-
-            if (saveDialog.ShowDialog() == true)
-            {
-                package.SaveAs(new System.IO.FileInfo(saveDialog.FileName));
+                values.Add(new List<object> { member.NameMain ?? "Unknown" });
             }
         }
+
+
+        // Bereich in der Tabelle, in den die Namen geschrieben werden (A5:A34)
+        string range = "HD Raid!A5:A34";
+        await _googleSheetsService.WriteDataAsync(range, values);
+    }
+
+    public async Task<bool> CheckForExistingRaidData(string spreadsheetId)
+    {
+        string range = "HD Raid!A5:A34";
+        List<List<string>> HDRaidParticipants = await _googleSheetsService.ReadDataAsync(range);
+
+
+        if (HDRaidParticipants != null)
+        {
+            foreach (var row in HDRaidParticipants)
+            {
+                string cellValue = row.Count > 0 ? row[0].ToString() : "";
+                if (!string.IsNullOrWhiteSpace(cellValue) && !cellValue.StartsWith("Group"))
+                {
+                    // Warnung ausgeben und Nutzer fragen
+                    return MessageBox.Show("There are already Entries in 'HD Raid' Do you want to override this data?",
+                                           "Warnung", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes;
+                }
+            }
+        }
+        return true; // Keine Einträge vorhanden, Speichern erlaubt
     }
 }

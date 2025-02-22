@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -35,19 +36,20 @@ namespace DiscordToExcel_RaidHelper.View
                     selectedRaidEvent = value;
                     OnPropertyChanged(nameof(SelectedRaidEvent));
                     OnPropertyChanged(nameof(SignUps));
+                    OnPropertyChanged(nameof(FinalSetup));
                     UpdateRaidMemberList();
                 }
             }
         }
 
         private ObservableCollection<SignUps> signUpsStructure = new ObservableCollection<SignUps>();
-        public ObservableCollection<SignUps> SignUpsStructure
+        public ObservableCollection<SignUps> updatedSignUpsStructure
         {
             get => signUpsStructure;
             set
             {
                 signUpsStructure = value;
-                OnPropertyChanged(nameof(SignUpsStructure));
+                OnPropertyChanged(nameof(updatedSignUpsStructure));
             }
         }
 
@@ -65,13 +67,22 @@ namespace DiscordToExcel_RaidHelper.View
         public MainView()
         {
             // Load Settings
+            _appSettings = new AppSettings();
             _appSettings = SettingsManager.LoadSettings();
+            _appSettings.saveButtonClicked = false;
+
+            if (_appSettings.GoogleSheetsID == null || _appSettings.ServerId == null || _appSettings.RaidHelperApi == null)
+            {
+                MessageBox.Show("Please check the missing required Settings.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                Settings_Click();
+            } 
+           
             raidController = new RaidController(_appSettings.RaidHelperApi, _appSettings.ServerId);
-            excelController = new ExcelController();
             raidMemberListModel = new RaidMemberListModel();
-            SignUpsStructure = raidMemberListModel.CreateRaidMemberList();
+            updatedSignUpsStructure = raidMemberListModel.CreateRaidMemberList();
             LoadRaidEvents();
             UpdateRaidMemberList();
+
         }
 
         private void UpdateRaidMemberList()
@@ -79,9 +90,35 @@ namespace DiscordToExcel_RaidHelper.View
             if (SelectedRaidEvent != null)
             {
                 var updatedList = raidMemberListModel.CreateRaidMemberList();
+
+                if (SelectedRaidEvent.FinalSetup.Any()) // if a final Setup exisis
+                {
+                    foreach (var setup in SelectedRaidEvent.FinalSetup)
+                    {
+                        // Berechne die exakte Position in updatedList
+                        int index = ((setup.PartyId - 1) * 6) + setup.SlotId; // 6 wegen Gruppenheader
+                        if (index >= 0 && index < updatedList.Count && !updatedList[index].IsGroupHeader)
+                        {
+                            var mappedMember = _appSettings.NameMappings.FirstOrDefault(m => m.NameInDiscord == setup.NameDiscord);
+                            updatedList[index] = new SignUps
+                            {
+                                NameDiscord = setup.NameDiscord,
+                                NameMain = mappedMember?.NameOfMain ?? string.Empty,
+                                Classname = "Finalized",
+                                IsGroupHeader = false,
+                                IsOnBench = false
+                            };
+                        }
+                    }
+                }
+
                 int groupIndex = 0;
                 foreach (var member in SelectedRaidEvent.SignUps)
                 {
+                    if (groupIndex >= 30) // 25 member + 5 groupheader is the max
+                    {
+                        break;
+                    }
                     while (updatedList[groupIndex].IsGroupHeader)
                     {
                         groupIndex++;
@@ -96,7 +133,7 @@ namespace DiscordToExcel_RaidHelper.View
                     updatedList[groupIndex] = member;
                     groupIndex++;
                 }
-                SignUpsStructure = updatedList;
+                updatedSignUpsStructure = updatedList;
             }
         }
 
@@ -120,35 +157,56 @@ namespace DiscordToExcel_RaidHelper.View
             }
         }
 
-        public void SaveToExcel_Click()
+        public async Task SaveToExcel_Click()
         {
-            if (SelectedRaidEvent != null)
+            //ToDo: Don't save if nothing was selected (only placeholders)
+            if (SelectedRaidEvent != null ||SignUps != null)
             {
                 try
                 {
-                    excelController.ExportRaidParticipantsToExcel(SelectedRaidEvent);
-                    MessageBox.Show("Export successful!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string credentials = GoogleSheetsService.ExtractJsonKey(); 
+                    string spreadsheetId = _appSettings.GoogleSheetsID;
+                    ExcelController excelController = new ExcelController(credentials, spreadsheetId);
+
+                    // Check for existing data in the sheet and ask the user if he wants to overwrite it
+                    bool overwriteAllowed = await excelController.CheckForExistingRaidData(spreadsheetId);
+                    if (!overwriteAllowed) return; // User canceled
+
+                    await excelController.WriteRaidmemberToExcel(updatedSignUpsStructure);
+                                        
+                    // delete temp file
+                    //if (File.Exists(credentials))
+                    //{
+                    //    File.Delete(credentials);
+                    //}
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to export: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Fehler beim Export: {ex.Message}", "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Please select a raid event first.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Bitte wähle ein Raid-Event aus.", "Warnung", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
         public void Settings_Click()
         {
-            var settingsWindow = new SettingsWindow(_appSettings);
+            // set the save flag to false 
+            _appSettings.saveButtonClicked = false;
+
+            var settingsWindow = new SettingsWindow();
 
             // show modal dialog
             if (settingsWindow.ShowDialog() == true)
+                _appSettings = settingsWindow.UpdatedSettings;
             {
-                // Save after closing the window
-                SettingsManager.SaveSettings(_appSettings);
+                // Save after closing the window and save was not clicked
+                if (_appSettings.saveButtonClicked == false)
+                {
+                    SettingsManager.SaveSettings(_appSettings);
+                }
             }
         }
 
@@ -267,6 +325,24 @@ namespace DiscordToExcel_RaidHelper.View
             }
 
             draggedRow = null;
+        }
+
+        public void DataGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            var dataGrid = sender as DataGrid;
+
+            if (dataGrid != null)
+            {
+                if (e.Key == Key.C && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                {
+                    ApplicationCommands.Copy.Execute(null, dataGrid);
+                }
+                else if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                {
+                   Debug.WriteLine("Paste");
+                    ApplicationCommands.Paste.Execute(null, dataGrid);
+                }
+            }
         }
 
         // helper method to find parent of specific type
