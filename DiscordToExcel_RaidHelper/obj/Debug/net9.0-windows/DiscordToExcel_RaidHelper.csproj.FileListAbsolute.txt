@@ -35,3 +35,10 @@ C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\De
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\ref\DiscordToExcel_RaidHelper.dll
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\SettingsWindow.baml
 C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\obj\Debug\net9.0-windows\SettingsWindow.g.cs
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Google.Apis.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Google.Apis.Auth.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Google.Apis.Core.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Google.Apis.Sheets.v4.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\Newtonsoft.Json.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\System.Management.dll
+C:\Users\DanielKrause\source\repos\WoW_Projects\DiscordToExcel_RaidHelper\bin\Debug\net9.0-windows\runtimes\win\lib\net7.0\System.Management.dll

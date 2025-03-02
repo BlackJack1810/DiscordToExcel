@@ -8,6 +8,30 @@
         d:DataContext="{d:DesignInstance Type=view:MainView}"
         mc:Ignorable="d"
         Title="Discord to Excel" Height="800" Width="800">
+    <Window.Resources>
+        <Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Group 1">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Group 2">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Group 3">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Group 4">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Group 5">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding NameDiscord}" Value="Bench">
+                    <Setter Property="Background" Value="LightGreen"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -18,7 +42,7 @@
             <ColumnDefinition Width="350"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Image Grid.Row="0" Grid.Column="0" x:Name="Logo" Source="Image/NewHopeLogo.png" Width="100" Height="auto"/>
+        <Image Grid.Row="0" Grid.Column="0" x:Name="Logo" Source="Image/NewHopeLogo.png" Width="200" Height="auto"/>
         <Button Grid.Row="2" Grid.Column="0" Click="LoadEvents_Click" HorizontalAlignment="center" Margin="0,15,0,0" Height="60" Width="170" VerticalAlignment="Top">Reload current raids</Button>
         <Button Grid.Row="2" Grid.Column="0" Click="Settings_Click" HorizontalAlignment="center" Margin="0,0,0,0" Height="60" Width="170" VerticalAlignment="Center">Settings</Button>
         <Button Grid.Row="2" Grid.Column="0" Click="SaveToExcel_Click" HorizontalAlignment="center" Margin="0,0,0,15" Height="60" Width="170" VerticalAlignment="Bottom">Save to Excel</Button>
@@ -39,13 +63,16 @@
             AutoGenerateColumns="False" 
             CanUserAddRows="False" 
             CanUserDeleteRows="False"
-            CanUserSortColumns="False" 
+            CanUserSortColumns="False"
+            CanUserResizeColumns="False"
             AllowDrop="True"
             DragEnter="DataGrid_DragEnter"
             PreviewMouseLeftButtonDown="DataGrid_PreviewMouseLeftButtonDown"
             Drop="DataGrid_Drop"
             CellEditEnding="DataGrid_CellEditEnding"
-            ItemsSource="{Binding SignUpsStructure}">
+            KeyDown="DataGrid_KeyDown"
+            ItemsSource="{Binding updatedSignUpsStructure}"
+            ClipboardCopyMode="IncludeHeader">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name in Discord" Binding="{Binding NameDiscord}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Name of Main" Binding="{Binding NameMain}"/>

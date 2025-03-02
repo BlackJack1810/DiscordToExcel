@@ -19,7 +19,8 @@ namespace DiscordToExcel_RaidHelper.Datamodel
             {
                 raidMembers.Add(new SignUps { 
                     NameDiscord = $"Group {group}",
-                    NameMain = String.Empty,
+                    NameMain = $"Group {group}",
+                    Classname = "header",
                     IsGroupHeader = true 
                 });
                 for (int i = 1; i <= 5; i++)
@@ -27,8 +28,9 @@ namespace DiscordToExcel_RaidHelper.Datamodel
                     raidMembers.Add(new SignUps
                     {
                         NameDiscord = "Placeholder",
-                        NameMain = "Placeholder",
-                        IsGroupHeader = false
+                        NameMain = "",
+                        IsGroupHeader = false,
+                        IsOnBench = false
                     });
                 }
             }

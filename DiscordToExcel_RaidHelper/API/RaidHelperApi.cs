@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -35,14 +36,19 @@ namespace DiscordToExcel_RaidHelper.API
             // Ensure the request was successful
             response.EnsureSuccessStatusCode();
             
-            // Read the response content as a string
+            // Read the responseSignUps contentSignUps as a string
             var content = await response.Content.ReadAsStringAsync();
 
-            // Deserialize the content into the ApiResponse model
+            // Deserialize the contentSignUps into the ApiResponse model
             var apiResponse = JsonSerializer.Deserialize<ApiResponseAll>(content);
 
-            // Return only the posted events
-            return apiResponse?.PostedEvents ?? new List<AllCurrentRaids>();
+            // Aktuelle Zeit als Unix-Timestamp
+            long currentUnixTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            // Filtere nur zukünftige Events basierend auf Unix-Timestamp
+            return apiResponse?.PostedEvents?
+                .Where(e => e.StartTimeUnix > currentUnixTime)
+                .ToList() ?? new List<AllCurrentRaids>();
         }
 
         // Asynchronous method to retrieve raid participants from the API for a specific raid event
@@ -51,17 +57,45 @@ namespace DiscordToExcel_RaidHelper.API
             // Loop through the raids and add the participants to the raids List
             foreach (var raid in Raids)
             {
-                var response = await httpClient.GetAsync($"/api/v2/events/{raid.ID}");
-                
-                // Ensure the request was successful
-                response.EnsureSuccessStatusCode();
+                // API-Calls
+                var responseRaidPlan = await httpClient.GetAsync($"https://raid-helper.dev/api/raidplan/{raid.ID}");
+                responseRaidPlan.EnsureSuccessStatusCode();
 
-                // Read the response content as a string
-                var content = await response.Content.ReadAsStringAsync();
-                // Deserialize the content into the ApiResponse model
-                var apiResponse = JsonSerializer.Deserialize<ApiResponseSingle>(content);
-                var signUps = apiResponse?.SignUps ?? new List<SignUps>();
-                raid.SignUps.AddRange(signUps);
+                var responseSignUps = await httpClient.GetAsync($"/api/v2/events/{raid.ID}");
+                responseSignUps.EnsureSuccessStatusCode();
+
+                if (responseRaidPlan.IsSuccessStatusCode)
+                {
+                    var contentRaidPlan = await responseRaidPlan.Content.ReadAsStringAsync();
+
+
+                    // Falls die JSON leer ist, gibt es keinen Plan
+                    if (!string.IsNullOrWhiteSpace(contentRaidPlan) && contentRaidPlan != "{}")
+                    {
+                        var apiResponseRaidPlan = JsonSerializer.Deserialize<RaidPlanResponse>(contentRaidPlan);
+                        var finalSetupList = apiResponseRaidPlan?.RaidDrop ?? new List<FinalSetup>();
+
+                        if (finalSetupList != null)
+                        {
+                            raid.FinalSetup = finalSetupList;
+                            continue; // if a final setup exists, skip the next API call
+                        }
+                    }
+                }
+                if (responseSignUps.IsSuccessStatusCode)
+                {
+                    // Read the response contentas a string
+                    var contentSignUps = await responseSignUps.Content.ReadAsStringAsync();
+
+                    // Deserialize the contentSignUps into the ApiResponse model
+                    var apiResponseSignUps = JsonSerializer.Deserialize<ApiResponseSingle>(contentSignUps);
+                    var signUps = apiResponseSignUps?.SignUps ?? new List<SignUps>();
+
+                    // Remove sign-ups with "Absence" or "Tentative" in the className attribute
+                    signUps = signUps.Where(s => s.Classname != "Absence" && s.Classname != "Tentative").ToList();
+
+                    raid.SignUps.AddRange(signUps);
+                }
 
             }
             // Return only the posted events

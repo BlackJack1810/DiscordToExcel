@@ -49,5 +49,9 @@ namespace DiscordToExcel_RaidHelper
         {
             mainView.DataGrid_CellEditEnding(sender, e);
         }
+        private void DataGrid_KeyDown(object sender, KeyEventArgs e)
+        {
+            mainView.DataGrid_KeyDown(sender, e);
+        }
     }
 }

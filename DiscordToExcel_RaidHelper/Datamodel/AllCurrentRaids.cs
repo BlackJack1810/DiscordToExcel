@@ -22,5 +22,8 @@
         
         // Add a property to hold the list of sign-ups
         public List<SignUps> SignUps { get; set; } = new List<SignUps>();
+
+        // List if we already have a final setup
+        public List<FinalSetup> FinalSetup { get; set; } = new List<FinalSetup>();
     }
 }
